@@ -1,0 +1,2186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E8809B">
+<title>好孕管理工作台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#E8809B;--primary-light:#FBEAF0;--primary-dark:#993556;
+  --success:#1D9E75;--success-light:#E1F5EE;
+  --danger:#E24B4A;--danger-light:#FCEBEB;
+  --warning:#EF9F27;--warning-light:#FAEEDA;
+  --info:#378ADD;--info-light:#E6F1FB;
+  --text:#2C2C2A;--text-2:#888780;--text-3:#B4B2A9;
+  --bg:#FAFAF8;--card:#FFFFFF;--border:#E5E3DD;
+  --radius:12px;--radius-sm:8px;
+}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-size:14px;-webkit-font-smoothing:antialiased;padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+.container{max-width:840px;margin:0 auto;padding:0 16px}
+input,select,textarea,button{font-family:inherit;font-size:inherit}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);color:var(--text);font-size:16px;outline:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{border-color:var(--primary)}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{display:none}
+button{cursor:pointer;border:none;background:none;color:inherit}
+label{font-size:12px;color:var(--text-2);display:block;margin-bottom:4px}
+
+/* Header */
+.header{background:var(--card);border-bottom:1px solid var(--border);padding:12px 0;position:sticky;top:0;z-index:100}
+.header-inner{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.header-title{font-size:17px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.header-actions{display:flex;gap:6px}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-2);transition:background .2s;flex-shrink:0}
+.icon-btn:hover{background:var(--bg)}
+.icon-btn svg{width:20px;height:20px}
+
+/* Today section */
+.today-section{margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.today-header{background:linear-gradient(135deg,var(--primary-light),#FDE8EE);padding:12px 16px;display:flex;align-items:center;gap:8px}
+.today-header svg{width:20px;height:20px;color:var(--primary-dark)}
+.today-title{font-size:15px;font-weight:600;color:var(--primary-dark)}
+.today-count{margin-left:auto;background:var(--danger);color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.today-body{padding:8px 0}
+.today-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #F5F3EE}
+.today-item:last-child{border-bottom:none}
+.today-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.today-item-dot.overdue{background:var(--danger)}
+.today-item-dot.today{background:var(--warning)}
+.today-item-dot.done{background:var(--success)}
+.today-item-content{flex:1;min-width:0}
+.today-item-title{font-size:13px;color:var(--text);font-weight:500}
+.today-item-meta{font-size:11px;color:var(--text-2);margin-top:2px}
+.today-item-badge{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:500;white-space:nowrap}
+.today-empty{text-align:center;padding:24px 16px;color:var(--text-3);font-size:13px}
+
+/* Tab nav */
+.tab-nav{display:flex;gap:0;margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tab-btn{flex:1;padding:10px 4px;text-align:center;font-size:12px;font-weight:500;color:var(--text-2);transition:all .2s;border-bottom:2px solid transparent;display:flex;flex-direction:column;align-items:center;gap:4px}
+.tab-btn svg{width:18px;height:18px}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);background:var(--primary-light)}
+
+/* Tab content */
+.tab-content{display:none;padding-bottom:12px}
+.tab-content.active{display:block}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-top:12px;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.card-title svg{width:16px;height:16px;color:var(--primary)}
+.card-body{padding:12px 16px}
+
+/* Forms */
+.form-row{display:flex;gap:8px;align-items:flex-end}
+.form-group{flex:1;min-width:0}
+.btn{padding:10px 16px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;transition:all .2s;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-primary:active{transform:scale(.97)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{background:var(--bg)}
+.btn-sm{padding:6px 10px;font-size:12px}
+.btn-icon{width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center}
+.btn-icon svg{width:16px;height:16px}
+
+/* Badges */
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.badge-p0{background:var(--danger-light);color:var(--danger)}
+.badge-p1{background:var(--warning-light);color:#854F0B}
+.badge-p2{background:var(--info-light);color:#0C447C}
+.badge-done{background:var(--success-light);color:var(--success)}
+.badge-pending{background:var(--warning-light);color:#854F0B}
+.badge-overdue{background:var(--danger-light);color:var(--danger)}
+
+/* List items */
+.list-item{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid #F5F3EE}
+.list-item:last-child{border-bottom:none}
+.list-item-left{flex:1;min-width:0}
+.list-item-title{font-size:13px;font-weight:500;color:var(--text);word-break:break-word}
+.list-item-meta{font-size:11px;color:var(--text-2);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 8px}
+.list-item-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.list-empty{text-align:center;padding:32px 16px;color:var(--text-3);font-size:13px}
+
+/* Nutrition */
+.nutrition-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px}
+.nutrient-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.nutrient-card:hover{border-color:var(--primary)}
+.nutrient-card.checked{background:var(--success-light);border-color:var(--success)}
+.nutrient-icon{width:28px;height:28px;margin:0 auto 6px}
+.nutrient-icon svg{width:28px;height:28px}
+.nutrient-name{font-size:12px;font-weight:500;color:var(--text)}
+.nutrient-card.checked .nutrient-name{color:var(--success)}
+.nutrient-dose{font-size:10px;color:var(--text-2);margin-top:2px}
+.nutrient-status{font-size:11px;font-weight:600;margin-top:4px;color:var(--text-3)}
+.nutrient-card.checked .nutrient-status{color:var(--success)}
+
+/* Preconception nutrition/lifestyle items */
+.nutri-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
+.nutri-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .2s;background:var(--card)}
+.nutri-item:hover{border-color:var(--primary)}
+.nutri-item.done{background:var(--success-light);border-color:var(--success)}
+.nutri-item.done span{color:var(--success);font-weight:600}
+.nutri-icon{width:24px;height:24px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.nutri-icon svg{width:20px;height:20px}
+.nutri-item:not(.done) .nutri-icon{color:var(--text-3)}
+.nutri-item.done .nutri-icon{color:var(--success)}
+.nutri-item span{font-size:13px;color:var(--text)}
+
+/* Weight chart */
+.weight-chart-container{padding:8px 0}
+#weightChart{width:100%;display:block}
+.chart-empty{text-align:center;padding:32px 16px;color:var(--text-3);font-size:13px}
+
+/* Fetal movement */
+.fm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fm-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center}
+.fm-label{font-size:11px;color:var(--text-2);margin-bottom:4px}
+.fm-value{font-size:22px;font-weight:600;color:var(--text)}
+.fm-unit{font-size:10px;color:var(--text-3)}
+
+/* Task complete checkbox */
+.task-checkbox{width:22px;height:22px;border:2px solid var(--border);border-radius:50%;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.task-checkbox:hover{border-color:var(--primary)}
+.task-checkbox.checked{background:var(--success);border-color:var(--success)}
+.task-checkbox.checked svg{width:14px;height:14px;color:#fff}
+.task-checkbox svg{width:0;height:0;overflow:hidden;transition:all .2s}
+.task-checkbox.checked svg{width:14px;height:14px}
+.task-completed .list-item-title{text-decoration:line-through;color:var(--text-2)}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);max-width:400px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-header{padding:16px;border-bottom:1px solid var(--border);font-size:15px;font-weight:600}
+.modal-body{padding:16px}
+.modal-footer{padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* Section title */
+.section-title{font-size:13px;font-weight:600;color:var(--text-2);margin:16px 0 8px;padding-left:4px}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.stat-card{background:var(--bg);border-radius:var(--radius-sm);padding:10px 12px;text-align:center}
+.stat-value{font-size:22px;font-weight:600;color:var(--text)}
+.stat-label{font-size:11px;color:var(--text-2);margin-top:2px}
+
+/* Week indicator */
+.week-badge{display:inline-flex;align-items:center;gap:4px;background:var(--primary-light);color:var(--primary-dark);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+
+/* Date picker row */
+.date-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.date-row input[type=date]{flex:1}
+
+/* Responsive */
+@media(max-width:480px){
+  .form-row{flex-direction:column;align-items:stretch}
+  .form-row .btn{width:100%}
+  .nutrition-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Backup hint */
+.backup-hint{font-size:11px;color:var(--text-2);text-align:center;padding:8px;background:var(--warning-light);border-radius:var(--radius-sm);margin:8px 0}
+
+/* Mode selector */
+.mode-selector{display:flex;gap:0;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px;margin-bottom:12px}
+.mode-btn{flex:1;padding:8px 16px;border-radius:17px;font-size:13px;font-weight:600;color:var(--text-2);transition:all .2s;text-align:center}
+.mode-btn.active{background:var(--primary);color:#fff}
+
+/* Tutorial overlay */
+.tutorial-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.tutorial-overlay.show{opacity:1;visibility:visible}
+.tutorial-modal{background:var(--card);border-radius:var(--radius);max-width:480px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);transform:translateY(20px);transition:transform .3s}
+.tutorial-overlay.show .tutorial-modal{transform:translateY(0)}
+.tutorial-head{background:linear-gradient(135deg,var(--primary),#D4688A);color:#fff;padding:24px 20px;text-align:center;flex-shrink:0}
+.tutorial-head svg{width:40px;height:40px;margin-bottom:8px}
+.tutorial-head h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.tutorial-head p{font-size:12px;opacity:.9}
+.tutorial-body{padding:20px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.tutorial-section{margin-bottom:16px}
+.tutorial-section:last-child{margin-bottom:0}
+.tutorial-section h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tutorial-section h3 svg{width:16px;height:16px;color:var(--primary);flex-shrink:0}
+.tutorial-section p{font-size:13px;color:var(--text-2);line-height:1.7}
+.tutorial-section .tut-warn{background:var(--warning-light);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--warning);line-height:1.6;margin-top:6px}
+.tutorial-section .tut-danger{background:var(--danger-light);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--danger);line-height:1.6;margin-top:6px}
+.tutorial-foot{padding:16px 20px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px}
+.tutorial-foot .btn{flex:1}
+.tut-dots{display:flex;justify-content:center;gap:6px;padding-bottom:12px}
+.tut-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .2s}
+.tut-dot.active{background:var(--primary)}
+
+/* Dangan checklist */
+.dangan-checklist{display:flex;flex-wrap:wrap;gap:6px}
+.dangan-check-item{display:flex;align-items:center;gap:4px;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;cursor:pointer;transition:all .2s;background:var(--card)}
+.dangan-check-item:hover{border-color:var(--primary)}
+.dangan-check-item.checked{background:var(--success-light);border-color:var(--success);color:var(--success)}
+.dangan-check-item .ck-box{width:16px;height:16px;border-radius:4px;border:2px solid var(--text-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.dangan-check-item.checked .ck-box{background:var(--success);border-color:var(--success)}
+.dangan-check-item .ck-box svg{width:10px;height:10px;color:#fff;opacity:0;transition:opacity .2s}
+.dangan-check-item.checked .ck-box svg{opacity:1}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:#D3D1C7;border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="container header-inner">
+    <div class="header-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.5 2 6 4.5 6 8c0 2.5 1.5 4.5 3 6v2h6v-2c1.5-1.5 3-3.5 3-6 0-3.5-2.5-6-6-6z"/><path d="M9 20h6"/></svg>
+      好孕管理工作台
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="showTutorial()" title="使用教程">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </button>
+      <button class="icon-btn" onclick="exportJSON()" title="导出备份">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      </button>
+      <button class="icon-btn" onclick="document.getElementById('importFile').click()" title="导入恢复">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 0L8 7m4-4l4 4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      </button>
+      <button class="icon-btn" onclick="confirmClear()" title="清空数据">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-9 0v14a2 2 0 002 2h6a2 2 0 002-2V6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+<input type="file" id="importFile" accept=".json" style="display:none">
+
+<div class="container">
+
+  <!-- Mode selector -->
+  <div class="mode-selector">
+    <button class="mode-btn" id="modePreconception" onclick="setMode('preconception')">备孕中</button>
+    <button class="mode-btn active" id="modePregnancy" onclick="setMode('pregnancy')">怀孕中</button>
+  </div>
+
+  <!-- Today section -->
+  <div class="today-section">
+    <div class="today-header">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span class="today-title">今天要处理</span>
+      <span class="today-count" id="todayCount">0</span>
+    </div>
+    <div class="today-body" id="todayBody">
+      <div class="today-empty">暂无待处理事项</div>
+    </div>
+  </div>
+
+  <!-- Tab navigation - Pregnancy mode -->
+  <div class="tab-nav" id="tabNavPreg">
+    <button class="tab-btn active" data-tab="checkup" onclick="switchTab('checkup')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+      <span>产检</span>
+    </button>
+    <button class="tab-btn" data-tab="nutrition" onclick="switchTab('nutrition')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 3.5L3.5 10.5a5 5 0 007.07 7.07l7-7a5 5 0 00-7.07-7.07z"/><path d="M7 7l3 3"/></svg>
+      <span>营养</span>
+    </button>
+    <button class="tab-btn" data-tab="weight" onclick="switchTab('weight')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+      <span>体重</span>
+    </button>
+    <button class="tab-btn" data-tab="tasks" onclick="switchTab('tasks')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>待办</span>
+    </button>
+  </div>
+
+  <!-- Tab navigation - Preconception mode -->
+  <div class="tab-nav" id="tabNavPre" style="display:none">
+    <button class="tab-btn active" data-tab="ovulation" onclick="switchTab('ovulation')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 000 20M2 12h20"/></svg>
+      <span>排卵</span>
+    </button>
+    <button class="tab-btn" data-tab="exam" onclick="switchTab('exam')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>检查</span>
+    </button>
+    <button class="tab-btn" data-tab="lifestyle" onclick="switchTab('lifestyle')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 3.5L3.5 10.5a5 5 0 007.07 7.07l7-7a5 5 0 00-7.07-7.07z"/><path d="M7 7l3 3"/></svg>
+      <span>营养体重</span>
+    </button>
+    <button class="tab-btn" data-tab="tasks" onclick="switchTab('tasks')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>待办</span>
+    </button>
+  </div>
+
+  <!-- Module 1: 产检计划记录 -->
+  <div class="tab-content active" id="tab-checkup">
+
+    <!-- 建档进度卡片 -->
+    <div class="card" id="danganCard">
+      <div class="card-header" style="background:linear-gradient(135deg,var(--primary-light),#FDE8EE)">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l7-3 7 3z"/></svg>
+          建档进度
+        </div>
+        <span class="badge" id="danganStatusBadge" style="font-size:12px">未建档</span>
+      </div>
+      <div class="card-body">
+        <div class="form-row" style="margin-bottom:8px">
+          <div class="form-group">
+            <label>建档医院</label>
+            <input type="text" id="dgHospital" placeholder="如：市妇幼保健院" value="">
+          </div>
+          <div class="form-group" style="max-width:140px">
+            <label>建档日期</label>
+            <input type="date" id="dgDate">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label>建档状态</label>
+          <select id="dgStatus">
+            <option value="none">未建档</option>
+            <option value="booked">已预约</option>
+            <option value="done">已建档</option>
+          </select>
+        </div>
+
+        <div class="section-title" style="margin:8px 0 6px">需带证件清单</div>
+        <div class="dangan-checklist" id="dgDocsList"></div>
+
+        <div class="section-title" style="margin:12px 0 6px">建档检查项目</div>
+        <div class="dangan-checklist" id="dgExamsList"></div>
+
+        <div class="form-group" style="margin-top:12px">
+          <label>备注</label>
+          <textarea id="dgNote" rows="2" placeholder="如：建档号、社区转诊、注意事项..." style="resize:vertical"></textarea>
+        </div>
+        <button class="btn btn-primary" style="margin-top:8px;width:100%" onclick="saveDangan()">保存建档信息</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          添加产检计划
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:8px">
+          <label>检查项目</label>
+          <input type="text" id="cpItem" placeholder="如：NT检查、大排畸B超、糖耐量">
+        </div>
+        <div class="form-row" style="margin-bottom:8px">
+          <div class="form-group">
+            <label>孕周</label>
+            <input type="text" id="cpWeek" placeholder="如：12周">
+          </div>
+          <div class="form-group">
+            <label>计划日期</label>
+            <input type="date" id="cpDate">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>备注</label>
+            <input type="text" id="cpNote" placeholder="选填">
+          </div>
+          <button class="btn btn-primary" onclick="addCheckup()">添加</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+          产检记录
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="renderCheckups()">刷新</button>
+      </div>
+      <div id="checkupList">
+        <div class="list-empty">暂无产检记录</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module 2: 营养补充打卡 -->
+  <div class="tab-content" id="tab-nutrition">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 3.5L3.5 10.5a5 5 0 007.07 7.07l7-7a5 5 0 00-7.07-7.07z"/></svg>
+          每日营养打卡
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="date-row">
+          <label style="margin:0;white-space:nowrap">日期</label>
+          <input type="date" id="nutriDate" onchange="renderNutrition()">
+          <button class="btn btn-sm btn-outline" onclick="setNutriToday()">今天</button>
+        </div>
+        <div class="nutrition-grid" id="nutritionGrid"></div>
+        <div style="margin-top:12px">
+          <label>今日身体记录（选填）</label>
+          <textarea id="nutriNote" rows="2" placeholder="如：孕吐减轻、食欲恢复、胎动明显..." style="resize:vertical"></textarea>
+          <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="saveNutriNote()">保存记录</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+          近7天打卡统计
+        </div>
+      </div>
+      <div class="card-body" id="nutritionStats"></div>
+    </div>
+  </div>
+
+  <!-- Module 3: 体重胎动记录 -->
+  <div class="tab-content" id="tab-weight">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+          记录体重
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-row" style="margin-bottom:8px">
+          <div class="form-group">
+            <label>日期</label>
+            <input type="date" id="wtDate">
+          </div>
+          <div class="form-group" style="max-width:120px">
+            <label>体重(kg)</label>
+            <input type="number" id="wtValue" step="0.1" placeholder="56.5">
+          </div>
+          <button class="btn btn-primary" onclick="addWeight()">记录</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+          体重趋势图
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="stats-row" id="weightStats"></div>
+        <div class="weight-chart-container" id="weightChartContainer"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.6a5.5 5.5 0 00-7.78 0L12 5.66l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          胎动记录
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="setFmToday()">今天</button>
+      </div>
+      <div class="card-body">
+        <div class="date-row">
+          <label style="margin:0;white-space:nowrap">日期</label>
+          <input type="date" id="fmDate" onchange="renderFetalMovement()">
+        </div>
+        <div class="fm-grid" id="fmGrid"></div>
+        <div style="margin-top:12px">
+          <div class="form-row">
+            <div class="form-group">
+              <label>早(次/小时)</label>
+              <input type="number" id="fmMorning" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>午(次/小时)</label>
+              <input type="number" id="fmAfternoon" placeholder="0" min="0">
+            </div>
+            <div class="form-group">
+              <label>晚(次/小时)</label>
+              <input type="number" id="fmEvening" placeholder="0" min="0">
+            </div>
+            <button class="btn btn-primary" onclick="addFetalMovement()">保存</button>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--text-2);background:var(--info-light);padding:8px;border-radius:var(--radius-sm)">
+          正常胎动：每小时3-5次以上。12小时内胎动数少于10次提示可能缺氧，需及时就医。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module 4: 今日待办 -->
+  <div class="tab-content" id="tab-tasks">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          添加待办
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-group" style="margin-bottom:8px">
+          <label>任务内容</label>
+          <input type="text" id="taskTitle" placeholder="如：预约四维彩超、补充DHA、准备待产包">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>优先级</label>
+            <select id="taskPriority">
+              <option value="P0">P0 - 紧急</option>
+              <option value="P1" selected>P1 - 重要</option>
+              <option value="P2">P2 - 一般</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>截止日期</label>
+            <input type="date" id="taskDueDate">
+          </div>
+          <button class="btn btn-primary" onclick="addTask()">添加</button>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">待办任务</div>
+    <div class="card">
+      <div id="taskListPending">
+        <div class="list-empty">暂无待办任务</div>
+      </div>
+    </div>
+    <div class="section-title">已完成</div>
+    <div class="card">
+      <div id="taskListDone">
+        <div class="list-empty">暂无已完成任务</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module P1: 排卵监测 (Preconception) -->
+  <div class="tab-content" id="tab-ovulation">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 000 20M2 12h20"/></svg>
+          经期记录
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>本次月经开始</label>
+            <input type="date" id="periodStart">
+          </div>
+          <div class="form-group" style="max-width:100px">
+            <label>持续天数</label>
+            <input type="number" id="periodDays" placeholder="5" min="1" max="15">
+          </div>
+          <div class="form-group" style="max-width:100px">
+            <label>周期(天)</label>
+            <input type="number" id="periodCycle" placeholder="28" min="20" max="45">
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="addPeriod()">记录经期</button>
+        <div id="periodList" style="margin-top:12px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 0l3-3m-3 3L9 5"/><circle cx="12" cy="16" r="6"/></svg>
+          排卵预测
+        </div>
+      </div>
+      <div class="card-body" id="ovulationPredict">
+        <div class="list-empty">记录经期后自动预测排卵日和受孕窗口</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+          基础体温
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group" style="max-width:140px">
+            <label>日期</label>
+            <input type="date" id="bbtDate">
+          </div>
+          <div class="form-group" style="max-width:100px">
+            <label>体温(°C)</label>
+            <input type="number" id="bbtTemp" placeholder="36.5" step="0.1" min="35" max="42">
+          </div>
+          <div class="form-group" style="flex:0 0 auto;align-self:flex-end">
+            <button class="btn btn-primary" onclick="addBBT()">记录</button>
+          </div>
+        </div>
+        <div id="bbtChartContainer" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module P2: 孕前检查 (Preconception) -->
+  <div class="tab-content" id="tab-exam">
+    <div class="card">
+      <div class="card-header" style="background:linear-gradient(135deg,var(--info-light),#DCEEFB)">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          女方检查
+        </div>
+        <span class="badge" id="femaleExamBadge" style="font-size:12px">0/0</span>
+      </div>
+      <div class="card-body">
+        <div class="dangan-checklist" id="femaleExamList"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" style="background:linear-gradient(135deg,var(--info-light),#DCEEFB)">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+          男方检查
+        </div>
+        <span class="badge" id="maleExamBadge" style="font-size:12px">0/0</span>
+      </div>
+      <div class="card-body">
+        <div class="dangan-checklist" id="maleExamList"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          检查备注
+        </div>
+      </div>
+      <div class="card-body">
+        <textarea id="examNote" rows="3" placeholder="记录检查结果、医生建议、复查时间等..." style="resize:vertical" onchange="saveExamNote()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Module P3: 营养体重 (Preconception) -->
+  <div class="tab-content" id="tab-lifestyle">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 3.5L3.5 10.5a5 5 0 007.07 7.07l7-7a5 5 0 00-7.07-7.07z"/><path d="M7 7l3 3"/></svg>
+          叶酸打卡
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="setNutriToday()">今天</button>
+      </div>
+      <div class="card-body">
+        <div class="date-row">
+          <label style="margin:0;white-space:nowrap">日期</label>
+          <input type="date" id="preNutriDate" onchange="renderPreNutrition()">
+        </div>
+        <div class="nutri-grid" id="preNutriGrid"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg>
+          体重与BMI
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group" style="max-width:100px">
+            <label>身高(cm)</label>
+            <input type="number" id="heightInput" placeholder="160" min="100" max="250" onchange="saveHeight()">
+          </div>
+          <div class="form-group" style="max-width:120px">
+            <label>体重(kg)</label>
+            <input type="number" id="weightInput" placeholder="52.0" step="0.1" min="20" max="200">
+          </div>
+          <div class="form-group" style="max-width:100px">
+            <label>日期</label>
+            <input type="date" id="preWeightDate">
+          </div>
+          <div class="form-group" style="flex:0 0 auto;align-self:flex-end">
+            <button class="btn btn-primary" onclick="addPreWeight()">记录</button>
+          </div>
+        </div>
+        <div class="stats-row" id="bmiStats"></div>
+        <div class="weight-chart-container" id="preWeightChart"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.6a5.5 5.5 0 00-7.78 0L12 5.66l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          生活方式记录
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="setLifeToday()">今天</button>
+      </div>
+      <div class="card-body">
+        <div class="date-row">
+          <label style="margin:0;white-space:nowrap">日期</label>
+          <input type="date" id="lifeDate" onchange="renderLifestyle()">
+        </div>
+        <div id="lifestyleGrid"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header" id="confirmTitle">确认操作</div>
+    <div class="modal-body" id="confirmMsg">确定要执行此操作吗？</div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary btn-sm" id="confirmOkBtn">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Tutorial overlay -->
+<div class="tutorial-overlay" id="tutorialOverlay">
+  <div class="tutorial-modal">
+    <div class="tutorial-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.5 2 6 4.5 6 8c0 2.5 1.5 4.5 3 6v2h6v-2c1.5-1.5 3-3.5 3-6 0-3.5-2.5-6-6-6z"/><path d="M9 20h6"/></svg>
+      <h2>好孕管理工作台</h2>
+      <p>使用教程</p>
+    </div>
+    <div class="tut-dots" id="tutDots"></div>
+    <div class="tutorial-body" id="tutBody">
+      <!-- Pages inserted by JS -->
+    </div>
+    <div class="tutorial-foot">
+      <button class="btn btn-outline" id="tutPrevBtn" onclick="tutPrev()" style="display:none">上一步</button>
+      <button class="btn btn-primary" id="tutNextBtn" onclick="tutNext()">下一步</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ Data ============ */
+const STORE_KEY = 'wb_pregnancy_data';
+let appData = {
+  mode:'pregnancy',
+  checkups:[],nutrition:{},weights:[],fetalMovements:[],tasks:[],
+  dangan:{hospital:'',date:'',status:'none',docs:{},exams:{},note:''},
+  periods:[],bbt:[],preExams:{female:{},male:{},note:''},lifestyle:{},height:0,preWeights:[]
+};
+
+const DG_DOCS = ['身份证','结婚证','户口本','居住证','社保卡','之前B超单','之前检查报告'];
+const DG_EXAMS = ['血常规','尿常规','血型ABO+Rh','肝肾功能','乙肝五项','梅毒筛查','HIV筛查','丙肝筛查','甲状腺功能','心电图','B超确认宫内孕'];
+const FEMALE_EXAMS = ['B超检查','TORCH五项','甲状腺功能','血常规','尿常规','空腹血糖','口腔检查','宫颈TCT筛查','HPV筛查','乳腺检查','传染病筛查','肝肾功能'];
+const MALE_EXAMS = ['精液常规','传染病筛查','血常规','尿常规','肝肾功能','生殖系统B超','染色体检查','血型'];
+const PRE_NUTRI_ITEMS = [['folicAcid','叶酸 0.4mg']];
+const LIFESTYLE_ITEMS = [['exercise','运动30分钟'],['diet','均衡饮食'],['sleep','充足睡眠'],['caffeine','限咖啡因'],['smoke','无烟酒']];
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      appData = JSON.parse(raw);
+      if(!appData.nutrition) appData.nutrition = {};
+      if(!appData.dangan) appData.dangan = {hospital:'',date:'',status:'none',docs:{},exams:{},note:''};
+      if(!appData.periods) appData.periods = [];
+      if(!appData.bbt) appData.bbt = [];
+      if(!appData.preExams) appData.preExams = {female:{},male:{},note:''};
+      if(!appData.lifestyle) appData.lifestyle = {};
+      if(!appData.preWeights) appData.preWeights = [];
+      if(!appData.mode) appData.mode = 'pregnancy';
+    } else {
+      initEmptyData();
+    }
+  }catch(e){
+    console.error('loadData error', e);
+    initEmptyData();
+  }
+}
+function saveData(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(appData));
+  }catch(e){
+    console.error('saveData error', e);
+    showToast('保存失败：存储空间不足');
+  }
+}
+
+/* ============ Date helpers ============ */
+function getTodayStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function dateOffset(days){
+  const d = new Date();
+  d.setDate(d.getDate()+days);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtDate(s){
+  if(!s) return '';
+  const p = s.split('-');
+  return p[1]+'月'+p[2]+'日';
+}
+function isOverdue(s){
+  return s && s < getTodayStr();
+}
+function isToday(s){
+  return s === getTodayStr();
+}
+function daysUntil(s){
+  if(!s) return 999;
+  const d = new Date(s+'T00:00:00');
+  const t = new Date(getTodayStr()+'T00:00:00');
+  return Math.round((d-t)/(86400000));
+}
+
+/* ============ Empty data init ============ */
+function initEmptyData(){
+  appData = {
+    mode:'pregnancy',
+    dangan:{hospital:'',date:'',status:'none',docs:{},exams:{},note:''},
+    checkups:[],
+    nutrition:{},
+    weights:[],
+    fetalMovements:[],
+    tasks:[],
+    periods:[],
+    bbt:[],
+    preExams:{female:{},male:{},note:''},
+    lifestyle:{},
+    height:0,
+    preWeights:[]
+  };
+  saveData();
+}
+
+/* ============ Mode switching ============ */
+function setMode(mode){
+  appData.mode = mode;
+  saveData();
+  // Update mode buttons
+  document.getElementById('modePreconception').classList.toggle('active', mode==='preconception');
+  document.getElementById('modePregnancy').classList.toggle('active', mode==='pregnancy');
+  // Update tab nav visibility
+  document.getElementById('tabNavPre').style.display = mode==='preconception' ? '' : 'none';
+  document.getElementById('tabNavPreg').style.display = mode==='pregnancy' ? '' : 'none';
+  // Hide all tab contents then show first tab of current mode
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  if(mode==='preconception'){
+    switchTab('ovulation');
+  } else {
+    switchTab('checkup');
+  }
+  renderToday();
+}
+
+/* ============ Tab switching ============ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  const el = document.getElementById('tab-'+tab);
+  if(el) el.classList.add('active');
+  const btn = document.querySelector('.tab-btn[data-tab="'+tab+'"]');
+  if(btn) btn.classList.add('active');
+  if(tab==='nutrition') renderNutrition();
+  if(tab==='weight') renderWeightModule();
+  if(tab==='checkup'){ renderDangan(); renderCheckups(); }
+  if(tab==='tasks') renderTasks();
+  if(tab==='ovulation'){ renderPeriods(); renderOvulationPredict(); renderBBTChart(); }
+  if(tab==='exam') renderPreExams();
+  if(tab==='lifestyle'){ renderPreNutrition(); renderPreWeight(); renderLifestyle(); }
+}
+
+/* ============ Toast ============ */
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+/* ============ Modal ============ */
+function showModal(title, msg, callback){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  const btn = document.getElementById('confirmOkBtn');
+  btn.onclick = function(){ callback(); closeModal(); };
+  document.getElementById('confirmModal').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('confirmModal').classList.remove('show');
+}
+
+/* ============ Backup ============ */
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(appData,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pregnancy-backup-'+getTodayStr()+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('已导出备份文件');
+}
+document.getElementById('importFile').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      const parsed = JSON.parse(ev.target.result);
+      if(!parsed.checkups || !parsed.tasks){ throw new Error('格式不正确'); }
+      appData = parsed;
+      if(!appData.nutrition) appData.nutrition = {};
+      if(!appData.weights) appData.weights = [];
+      if(!appData.fetalMovements) appData.fetalMovements = [];
+      if(!appData.dangan) appData.dangan = {hospital:'',date:'',status:'none',docs:{},exams:{},note:''};
+      if(!appData.periods) appData.periods = [];
+      if(!appData.bbt) appData.bbt = [];
+      if(!appData.preExams) appData.preExams = {female:{},male:{},note:''};
+      if(!appData.lifestyle) appData.lifestyle = {};
+      if(!appData.preWeights) appData.preWeights = [];
+      if(!appData.mode) appData.mode = 'pregnancy';
+      saveData();
+      renderAll();
+      showToast('数据导入成功');
+    }catch(err){
+      showToast('导入失败：'+err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+function confirmClear(){
+  showModal('清空全部数据', '此操作将删除所有数据（备孕/孕期模式通用），且不可恢复。确定继续吗？', function(){
+    appData = {
+      mode:'pregnancy',dangan:{hospital:'',date:'',status:'none',docs:{},exams:{},note:''},
+      checkups:[],nutrition:{},weights:[],fetalMovements:[],tasks:[],
+      periods:[],bbt:[],preExams:{female:{},male:{},note:''},lifestyle:{},height:0,preWeights:[]
+    };
+    saveData();
+    renderAll();
+    // Reset tab to default
+    setMode('pregnancy');
+    showToast('数据已清空');
+  });
+}
+
+/* ============ Today section ============ */
+function renderToday(){
+  const body = document.getElementById('todayBody');
+  const countEl = document.getElementById('todayCount');
+  let items = [];
+  const isPre = appData.mode === 'preconception';
+
+  if(!isPre){
+    // === Pregnancy mode ===
+    // Overdue checkups
+    appData.checkups.forEach(cp=>{
+      if(cp.status==='pending'){
+        const d = daysUntil(cp.date);
+        if(d < 0){
+          items.push({type:'overdue-cp', dotClass:'overdue', badge:'逾期', badgeClass:'badge-overdue',
+            title:cp.item, meta:'孕'+cp.week+' · 计划'+fmtDate(cp.date)+' · 已逾期'+(-d)+'天', action:'完成',
+            actionFn:()=>{ cp.status='done'; cp.result='已完成'; saveData(); renderAll(); }});
+        } else if(d===0){
+          items.push({type:'today-cp', dotClass:'today', badge:'今日', badgeClass:'badge-pending',
+            title:cp.item, meta:'孕'+cp.week+' · 今天产检', action:'完成',
+            actionFn:()=>{ cp.status='done'; cp.result='已完成'; saveData(); renderAll(); }});
+        } else if(d<=7){
+          items.push({type:'upcoming-cp', dotClass:'today', badge:d+'天后', badgeClass:'badge-p0',
+            title:cp.item, meta:'孕'+cp.week+' · '+fmtDate(cp.date), action:null});
+        }
+      }
+    });
+
+    // Dangan reminder
+    const dg = appData.dangan;
+    if(dg && dg.status !== 'done'){
+      if(dg.status === 'booked' && dg.date){
+        const d = daysUntil(dg.date);
+        if(d < 0){
+          items.push({type:'dangan-overdue', dotClass:'overdue', badge:'逾期', badgeClass:'badge-overdue',
+            title:'建档预约已逾期', meta:(dg.hospital||'')+' · 预约'+fmtDate(dg.date)+' · 已逾期'+(-d)+'天', action:'去查看',
+            actionFn:()=>{ switchTab('checkup'); }});
+        } else if(d === 0){
+          items.push({type:'dangan-today', dotClass:'today', badge:'今日', badgeClass:'badge-pending',
+            title:'今天去建档', meta:(dg.hospital||'')+' · 今天预约建档', action:'去查看',
+            actionFn:()=>{ switchTab('checkup'); }});
+        } else if(d <= 7){
+          items.push({type:'dangan-upcoming', dotClass:'today', badge:d+'天后', badgeClass:'badge-p0',
+            title:'建档预约临近', meta:(dg.hospital||'')+' · '+fmtDate(dg.date)+'建档', action:null});
+        }
+      } else if(dg.status === 'none'){
+        items.push({type:'dangan-none', dotClass:'today', badge:'待办', badgeClass:'badge-p0',
+          title:'尚未建档', meta:'确认宫内孕后6-12周内需去医院建档', action:'去填写',
+          actionFn:()=>{ switchTab('checkup'); }});
+      }
+    }
+
+    // Today's nutrition (pregnancy)
+    const todayNutri = appData.nutrition[getTodayStr()];
+    if(todayNutri){
+      const all = [['folicAcid','叶酸'],['iron','铁'],['calcium','钙'],['dha','DHA'],['iodine','碘']];
+      const undone = all.filter(([k])=>!todayNutri[k]);
+      if(undone.length > 0){
+        items.push({type:'nutrition', dotClass:'today', badge:'未完成', badgeClass:'badge-p1',
+          title:'今日营养打卡未完成', meta:'未补：'+undone.map(x=>x[1]).join('、'), action:'去打卡',
+          actionFn:()=>{ switchTab('nutrition'); }});
+      } else {
+        items.push({type:'nutrition', dotClass:'done', badge:'已完成', badgeClass:'badge-done',
+          title:'今日营养已全部补充', meta:'叶酸·铁·钙·DHA·碘 均已打卡', action:null});
+      }
+    }
+  } else {
+    // === Preconception mode ===
+    // Ovulation prediction
+    if(appData.periods.length > 0){
+      const last = appData.periods[0];
+      const ovulationDay = dateOffsetFrom(last.start, last.cycle - 14);
+      const fertileStart = dateOffsetFrom(last.start, last.cycle - 19);
+      const dOv = daysUntil(ovulationDay);
+      const dFs = daysUntil(fertileStart);
+      if(dOv === 0){
+        items.push({type:'ovulation-today', dotClass:'today', badge:'今日', badgeClass:'badge-pending',
+          title:'今天是排卵日', meta:'受孕最佳时机 · 排卵前后1-2天', action:'去查看',
+          actionFn:()=>{ switchTab('ovulation'); }});
+      } else if(dOv > 0 && dOv <= 7){
+        items.push({type:'ovulation-upcoming', dotClass:'today', badge:dOv+'天后', badgeClass:'badge-p0',
+          title:'排卵日临近', meta:'预计'+fmtDate(ovulationDay)+'排卵 · 受孕窗口'+fmtDate(fertileStart)+'起', action:null});
+      } else if(dFs >= 0 && dFs <= 1){
+        items.push({type:'fertile-window', dotClass:'today', badge:'受孕期', badgeClass:'badge-p0',
+          title:'正处于受孕窗口期', meta:'排卵预计'+fmtDate(ovulationDay), action:'去查看',
+          actionFn:()=>{ switchTab('ovulation'); }});
+      }
+      // Period overdue check
+      const nextPeriod = dateOffsetFrom(last.start, last.cycle);
+      const dNext = daysUntil(nextPeriod);
+      if(dNext < 0){
+        items.push({type:'period-overdue', dotClass:'overdue', badge:'逾期', badgeClass:'badge-overdue',
+          title:'月经已推迟'+(-dNext)+'天', meta:'上次月经'+fmtDate(last.start)+' · 周期'+last.cycle+'天 · 建议验孕', action:'记录结果',
+          actionFn:()=>{ switchTab('tasks'); }});
+      }
+    } else {
+      items.push({type:'no-period', dotClass:'today', badge:'待办', badgeClass:'badge-p0',
+        title:'尚未记录经期', meta:'记录经期后可自动预测排卵日和受孕窗口', action:'去记录',
+        actionFn:()=>{ switchTab('ovulation'); }});
+    }
+
+    // Preconception exams progress
+    const pe = appData.preExams;
+    if(pe){
+      const fDone = FEMALE_EXAMS.filter(n=>pe.female && pe.female[n]).length;
+      const mDone = MALE_EXAMS.filter(n=>pe.male && pe.male[n]).length;
+      const totalDone = fDone + mDone;
+      const totalAll = FEMALE_EXAMS.length + MALE_EXAMS.length;
+      if(totalDone < totalAll){
+        items.push({type:'pre-exam', dotClass:'today', badge:totalDone+'/'+totalAll, badgeClass:'badge-p1',
+          title:'孕前检查未完成', meta:'女方'+fDone+'/'+FEMALE_EXAMS.length+' · 男方'+mDone+'/'+MALE_EXAMS.length, action:'去查看',
+          actionFn:()=>{ switchTab('exam'); }});
+      }
+    }
+
+    // Folic acid (preconception)
+    const todayPreNutri = appData.nutrition[getTodayStr()];
+    if(todayPreNutri && !todayPreNutri.folicAcid){
+      items.push({type:'pre-folic', dotClass:'today', badge:'未完成', badgeClass:'badge-p1',
+        title:'今日叶酸未补充', meta:'备孕期每日0.4mg叶酸 · 预防神经管畸形', action:'去打卡',
+        actionFn:()=>{ switchTab('lifestyle'); }});
+    } else if(!todayPreNutri){
+      items.push({type:'pre-folic', dotClass:'today', badge:'未完成', badgeClass:'badge-p1',
+        title:'今日叶酸未补充', meta:'备孕期每日0.4mg叶酸 · 预防神经管畸形', action:'去打卡',
+        actionFn:()=>{ switchTab('lifestyle'); }});
+    }
+
+    // Lifestyle
+    const todayLife = appData.lifestyle[getTodayStr()];
+    if(todayLife){
+      const all = LIFESTYLE_ITEMS;
+      const undone = all.filter(([k])=>!todayLife[k]);
+      if(undone.length > 0){
+        items.push({type:'lifestyle', dotClass:'today', badge:'未完成', badgeClass:'badge-p1',
+          title:'今日生活方式打卡未完成', meta:'未完成：'+undone.map(x=>x[1]).join('、'), action:'去打卡',
+          actionFn:()=>{ switchTab('lifestyle'); }});
+      } else {
+        items.push({type:'lifestyle', dotClass:'done', badge:'已完成', badgeClass:'badge-done',
+          title:'今日生活方式全部达标', meta:'运动·饮食·睡眠·限咖啡因·无烟酒', action:null});
+      }
+    }
+  }
+
+  // Overdue tasks (shared)
+  appData.tasks.forEach(t=>{
+    if(!t.completed){
+      const d = daysUntil(t.dueDate);
+      if(d < 0){
+        items.push({type:'overdue-task', dotClass:'overdue', badge:'逾期', badgeClass:'badge-overdue',
+          title:t.title, meta:'截止'+fmtDate(t.dueDate)+' · '+t.priority+' · 已逾期'+(-d)+'天', action:'完成',
+          actionFn:()=>{ t.completed=true; saveData(); renderAll(); }});
+      } else if(d===0){
+        items.push({type:'today-task', dotClass:'today', badge:'今日', badgeClass:'badge-p1',
+          title:t.title, meta:t.priority+' · 今天截止', action:'完成',
+          actionFn:()=>{ t.completed=true; saveData(); renderAll(); }});
+      }
+    }
+  });
+
+  // Sort: overdue first, then today
+  items.sort((a,b)=>{
+    const order = {overdue:0, today:1, upcoming:2, done:3};
+    const aOrder = order[a.dotClass] ?? 9;
+    const bOrder = order[b.dotClass] ?? 9;
+    return aOrder - bOrder;
+  });
+
+  countEl.textContent = items.filter(i=>i.dotClass!=='done').length;
+  countEl.style.display = items.filter(i=>i.dotClass!=='done').length > 0 ? '' : 'none';
+
+  if(items.length === 0){
+    body.innerHTML = '<div class="today-empty">暂无待处理事项，安心休息吧</div>';
+    return;
+  }
+
+  body.innerHTML = items.map((item,idx)=>{
+    let actionHtml = '';
+    if(item.action){
+      actionHtml = '<button class="btn btn-sm btn-primary" style="margin-left:8px;white-space:nowrap" onclick="todayAction('+idx+')">'+item.action+'</button>';
+    }
+    return '<div class="today-item">'+
+      '<div class="today-item-dot '+item.dotClass+'"></div>'+
+      '<div class="today-item-content">'+
+        '<div class="today-item-title">'+item.title+'</div>'+
+        '<div class="today-item-meta">'+item.meta+'</div>'+
+      '</div>'+
+      '<span class="badge '+item.badgeClass+'">'+item.badge+'</span>'+
+      actionHtml+
+    '</div>';
+  }).join('');
+
+  // Store action functions
+  body._actions = items.map(i=>i.actionFn);
+}
+function todayAction(idx){
+  const fn = document.getElementById('todayBody')._actions[idx];
+  if(fn) fn();
+}
+
+/* ============ Module 0: Dangan (建档) ============ */
+function renderDangan(){
+  const dg = appData.dangan || {hospital:'',date:'',status:'none',docs:{},exams:{},note:''};
+
+  document.getElementById('dgHospital').value = dg.hospital || '';
+  document.getElementById('dgDate').value = dg.date || '';
+  document.getElementById('dgStatus').value = dg.status || 'none';
+  document.getElementById('dgNote').value = dg.note || '';
+
+  // Status badge
+  const badge = document.getElementById('danganStatusBadge');
+  if(dg.status === 'done'){
+    badge.textContent = '已建档';
+    badge.className = 'badge badge-done';
+    badge.style.fontSize = '12px';
+  } else if(dg.status === 'booked'){
+    badge.textContent = '已预约';
+    badge.className = 'badge badge-pending';
+    badge.style.fontSize = '12px';
+  } else {
+    badge.textContent = '未建档';
+    badge.className = 'badge badge-overdue';
+    badge.style.fontSize = '12px';
+  }
+
+  // Docs checklist
+  const docsList = document.getElementById('dgDocsList');
+  docsList.innerHTML = DG_DOCS.map(name=>{
+    const checked = dg.docs && dg.docs[name];
+    return '<div class="dangan-check-item '+(checked?'checked':'')+'" onclick="toggleDanganItem(\'docs\',\''+name+'\')">'+
+      '<div class="ck-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>'+
+      '<span>'+name+'</span>'+
+    '</div>';
+  }).join('');
+
+  // Exams checklist
+  const examsList = document.getElementById('dgExamsList');
+  examsList.innerHTML = DG_EXAMS.map(name=>{
+    const checked = dg.exams && dg.exams[name];
+    return '<div class="dangan-check-item '+(checked?'checked':'')+'" onclick="toggleDanganItem(\'exams\',\''+name+'\')">'+
+      '<div class="ck-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>'+
+      '<span>'+name+'</span>'+
+    '</div>';
+  }).join('');
+}
+
+function toggleDanganItem(type, name){
+  if(!appData.dangan) appData.dangan = {hospital:'',date:'',status:'none',docs:{},exams:{},note:''};
+  if(!appData.dangan[type]) appData.dangan[type] = {};
+  appData.dangan[type][name] = !appData.dangan[type][name];
+  saveData();
+  renderDangan();
+  renderToday();
+}
+
+function saveDangan(){
+  if(!appData.dangan) appData.dangan = {hospital:'',date:'',status:'none',docs:{},exams:{},note:''};
+  appData.dangan.hospital = document.getElementById('dgHospital').value.trim();
+  appData.dangan.date = document.getElementById('dgDate').value;
+  appData.dangan.status = document.getElementById('dgStatus').value;
+  appData.dangan.note = document.getElementById('dgNote').value.trim();
+  saveData();
+  renderDangan();
+  renderToday();
+  showToast('建档信息已保存');
+}
+
+/* ============ Module 1: Checkups ============ */
+function addCheckup(){
+  const item = document.getElementById('cpItem').value.trim();
+  const week = document.getElementById('cpWeek').value.trim();
+  const date = document.getElementById('cpDate').value;
+  const note = document.getElementById('cpNote').value.trim();
+  if(!item){ showToast('请输入检查项目'); return; }
+  if(!date){ showToast('请选择日期'); return; }
+  appData.checkups.push({id:Date.now(), week:week||'未标注', date, item, status:'pending', result:'', note});
+  saveData();
+  document.getElementById('cpItem').value='';
+  document.getElementById('cpWeek').value='';
+  document.getElementById('cpDate').value='';
+  document.getElementById('cpNote').value='';
+  renderCheckups();
+  renderToday();
+  showToast('产检计划已添加');
+}
+
+function toggleCheckup(id){
+  const cp = appData.checkups.find(c=>c.id===id);
+  if(!cp) return;
+  if(cp.status==='pending'){
+    cp.status='done';
+    cp.result='已完成';
+  } else {
+    cp.status='pending';
+    cp.result='';
+  }
+  saveData();
+  renderCheckups();
+  renderToday();
+}
+
+function deleteCheckup(id){
+  showModal('删除产检记录', '确定删除这条产检记录吗？', function(){
+    appData.checkups = appData.checkups.filter(c=>c.id!==id);
+    saveData();
+    renderCheckups();
+    renderToday();
+    showToast('已删除');
+  });
+}
+
+function editCheckupResult(id, result){
+  const cp = appData.checkups.find(c=>c.id===id);
+  if(cp){
+    cp.result = result;
+    saveData();
+  }
+}
+
+function renderCheckups(){
+  const list = document.getElementById('checkupList');
+  if(appData.checkups.length === 0){
+    list.innerHTML = '<div class="list-empty">暂无产检记录，点击上方添加</div>';
+    return;
+  }
+  // Sort by date ascending
+  const sorted = [...appData.checkups].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  list.innerHTML = sorted.map(cp=>{
+    const overdue = cp.status==='pending' && isOverdue(cp.date);
+    const today = cp.status==='pending' && isToday(cp.date);
+    const d = daysUntil(cp.date);
+    let badge = '';
+    if(cp.status==='done'){
+      badge = '<span class="badge badge-done">已完成</span>';
+    } else if(overdue){
+      badge = '<span class="badge badge-overdue">逾期'+(-d)+'天</span>';
+    } else if(today){
+      badge = '<span class="badge badge-pending">今天</span>';
+    } else {
+      badge = '<span class="badge badge-p0">'+(d>0?d+'天后':'')+'</span>';
+    }
+    return '<div class="list-item">'+
+      '<div class="task-checkbox '+(cp.status==='done'?'checked':'')+'" onclick="toggleCheckup('+cp.id+')">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>'+
+      '</div>'+
+      '<div class="list-item-left">'+
+        '<div class="list-item-title">'+cp.item+'</div>'+
+        '<div class="list-item-meta">'+
+          '<span class="week-badge">孕'+cp.week+'</span>'+
+          '<span>'+fmtDate(cp.date)+'</span>'+
+          (cp.result?'<span>结果：'+cp.result+'</span>':'')+
+          (cp.note?'<span>'+cp.note+'</span>':'')+
+        '</div>'+
+      '</div>'+
+      badge+
+      '<button class="btn-icon" onclick="deleteCheckup('+cp.id+')" title="删除">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-3)"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-9 0v14a2 2 0 002 2h6a2 2 0 002-2V6"/></svg>'+
+      '</button>'+
+    '</div>';
+  }).join('');
+}
+
+/* ============ Module 2: Nutrition ============ */
+const NUTRIENTS = [
+  {key:'folicAcid', name:'叶酸', dose:'0.4-0.6mg'},
+  {key:'iron', name:'铁', dose:'24-29mg'},
+  {key:'calcium', name:'钙', dose:'1000-1200mg'},
+  {key:'dha', name:'DHA', dose:'200mg'},
+  {key:'iodine', name:'碘', dose:'230μg'}
+];
+
+function setNutriToday(){
+  if(appData.mode === 'preconception'){
+    document.getElementById('preNutriDate').value = getTodayStr();
+    renderPreNutrition();
+  } else {
+    document.getElementById('nutriDate').value = getTodayStr();
+    renderNutrition();
+  }
+}
+function setLifeToday(){
+  document.getElementById('lifeDate').value = getTodayStr();
+  renderLifestyle();
+}
+
+function renderNutrition(){
+  const dateEl = document.getElementById('nutriDate');
+  if(!dateEl.value) dateEl.value = getTodayStr();
+  const date = dateEl.value;
+  const data = appData.nutrition[date] || {folicAcid:false,iron:false,calcium:false,dha:false,iodine:false,note:''};
+
+  const grid = document.getElementById('nutritionGrid');
+  grid.innerHTML = NUTRIENTS.map(n=>{
+    const checked = data[n.key];
+    return '<div class="nutrient-card '+(checked?'checked':'')+'" onclick="toggleNutrient(\''+n.key+'\')">'+
+      '<div class="nutrient-icon">'+
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:'+(checked?'var(--success)':'var(--text-3)')+'">'+
+          (checked ?
+            '<path d="M9 12l2 2 4-4" /><circle cx="12" cy="12" r="9"/>' :
+            '<path d="M10.5 3.5L3.5 10.5a5 5 0 007.07 7.07l7-7a5 5 0 00-7.07-7.07z"/><path d="M7 7l3 3"/>'
+          )+
+        '</svg>'+
+      '</div>'+
+      '<div class="nutrient-name">'+n.name+'</div>'+
+      '<div class="nutrient-dose">'+n.dose+'</div>'+
+      '<div class="nutrient-status">'+(checked?'已补充':'未补充')+'</div>'+
+    '</div>';
+  }).join('');
+
+  document.getElementById('nutriNote').value = data.note || '';
+  renderNutritionStats();
+}
+
+function toggleNutrient(key){
+  const date = document.getElementById('nutriDate').value || getTodayStr();
+  if(!appData.nutrition[date]){
+    appData.nutrition[date] = {folicAcid:false,iron:false,calcium:false,dha:false,iodine:false,note:''};
+  }
+  appData.nutrition[date][key] = !appData.nutrition[date][key];
+  saveData();
+  renderNutrition();
+  renderToday();
+}
+
+function saveNutriNote(){
+  const date = document.getElementById('nutriDate').value || getTodayStr();
+  if(!appData.nutrition[date]){
+    appData.nutrition[date] = {folicAcid:false,iron:false,calcium:false,dha:false,iodine:false,note:''};
+  }
+  appData.nutrition[date].note = document.getElementById('nutriNote').value;
+  saveData();
+  showToast('记录已保存');
+}
+
+function renderNutritionStats(){
+  const container = document.getElementById('nutritionStats');
+  let html = '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap">';
+  html += '<tr style="color:var(--text-2)"><th style="padding:4px;text-align:left">日期</th>';
+  NUTRIENTS.forEach(n=>{
+    html += '<th style="padding:4px;text-align:center">'+n.name+'</th>';
+  });
+  html += '<th style="padding:4px;text-align:center">完成</th></tr>';
+
+  for(let i=0; i<7; i++){
+    const d = dateOffset(-i);
+    const data = appData.nutrition[d];
+    const dateLabel = i===0 ? '今天' : (i===1?'昨天':fmtDate(d));
+    html += '<tr style="border-top:1px solid var(--border)"><td style="padding:6px">'+dateLabel+'</td>';
+    let done = 0;
+    NUTRIENTS.forEach(n=>{
+      const v = data && data[n.key];
+      if(v) done++;
+      html += '<td style="padding:6px;text-align:center">'+
+        (v ? '<span style="color:var(--success)">&#10003;</span>' : '<span style="color:var(--text-3)">&middot;</span>')+
+      '</td>';
+    });
+    html += '<td style="padding:6px;text-align:center;font-weight:600;color:'+(done===5?'var(--success)':'var(--text-2)')+'">'+done+'/5</td></tr>';
+  }
+  html += '</table></div>';
+  container.innerHTML = html;
+}
+
+/* ============ Module 3: Weight ============ */
+function addWeight(){
+  const date = document.getElementById('wtDate').value || getTodayStr();
+  const val = parseFloat(document.getElementById('wtValue').value);
+  if(!val || val < 30 || val > 150){ showToast('请输入合理的体重值'); return; }
+  // Replace if same date exists
+  appData.weights = appData.weights.filter(w=>w.date !== date);
+  appData.weights.push({id:Date.now(), date, weight:val});
+  saveData();
+  document.getElementById('wtDate').value = '';
+  document.getElementById('wtValue').value = '';
+  renderWeightModule();
+  showToast('体重已记录');
+}
+
+function deleteWeight(id){
+  appData.weights = appData.weights.filter(w=>w.id!==id);
+  saveData();
+  renderWeightModule();
+}
+
+function renderWeightModule(){
+  // Stats
+  const statsEl = document.getElementById('weightStats');
+  const weights = appData.weights;
+  if(weights.length === 0){
+    statsEl.innerHTML = '';
+    document.getElementById('weightChartContainer').innerHTML = '<div class="chart-empty">暂无体重数据，点击上方记录</div>';
+    return;
+  }
+  const sorted = [...weights].sort((a,b)=>a.date.localeCompare(b.date));
+  const latest = sorted[sorted.length-1];
+  const first = sorted[0];
+  const gain = (latest.weight - first.weight).toFixed(1);
+  const gainColor = gain > 0 ? 'var(--warning)' : 'var(--success)';
+
+  statsEl.innerHTML =
+    '<div class="stat-card"><div class="stat-value">'+latest.weight.toFixed(1)+'</div><div class="stat-label">当前(kg)</div></div>'+
+    '<div class="stat-card"><div class="stat-value" style="color:'+gainColor+'">'+(gain>0?'+':'')+gain+'</div><div class="stat-label">孕期增重(kg)</div></div>'+
+    '<div class="stat-card"><div class="stat-value">'+sorted.length+'</div><div class="stat-label">记录次数</div></div>';
+
+  // Chart
+  renderWeightChart(sorted);
+}
+
+function renderWeightChart(data){
+  const container = document.getElementById('weightChartContainer');
+  if(data.length < 1){
+    container.innerHTML = '<div class="chart-empty">暂无数据</div>';
+    return;
+  }
+
+  const W = 680, H = 220;
+  const padL = 40, padR = 20, padT = 20, padB = 40;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  const weights = data.map(d=>d.weight);
+  let minW = Math.min(...weights);
+  let maxW = Math.max(...weights);
+  const range = Math.max(maxW - minW, 2);
+  minW = minW - range * 0.2;
+  maxW = maxW + range * 0.2;
+
+  const n = data.length;
+  function xCoord(i){ return padL + (n===1 ? chartW/2 : chartW * i/(n-1)); }
+  function yCoord(w){ return padT + chartH * (1 - (w - minW)/(maxW - minW)); }
+
+  // Grid lines (4 horizontal)
+  let gridLines = '';
+  for(let i=0; i<=4; i++){
+    const y = padT + chartH * i/4;
+    const val = maxW - (maxW-minW) * i/4;
+    gridLines += '<line x1="'+padL+'" y1="'+y.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y.toFixed(1)+'" stroke="#E5E3DD" stroke-width="0.5"/>';
+    gridLines += '<text x="'+(padL-4)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end" font-size="10" fill="#888780">'+val.toFixed(1)+'</text>';
+  }
+
+  // X labels
+  let xLabels = '';
+  const maxLabels = Math.min(n, 8);
+  const step = Math.ceil(n / maxLabels);
+  for(let i=0; i<n; i+=step){
+    xLabels += '<text x="'+xCoord(i).toFixed(1)+'" y="'+(H-padB+16)+'" text-anchor="middle" font-size="10" fill="#888780">'+fmtDate(data[i].date)+'</text>';
+  }
+
+  // Polyline
+  let pts = data.map((d,i)=> xCoord(i).toFixed(1)+','+yCoord(d.weight).toFixed(1)).join(' ');
+
+  // Points
+  let dots = '';
+  data.forEach((d,i)=>{
+    const x = xCoord(i);
+    const y = yCoord(d.weight);
+    dots += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.5" fill="#E8809B" stroke="#fff" stroke-width="1.5"/>';
+  });
+
+  // Fill area
+  const areaPts = pts + ' ' + xCoord(n-1).toFixed(1)+','+(padT+chartH)+' '+xCoord(0).toFixed(1)+','+(padT+chartH);
+
+  container.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;max-width:'+W+'px" preserveAspectRatio="xMidYMid meet">'+
+    gridLines +
+    '<polygon points="'+areaPts+'" fill="rgba(232,128,155,0.1)"/>'+
+    '<polyline points="'+pts+'" fill="none" stroke="#E8809B" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+
+    dots +
+    xLabels +
+    '<text x="'+padL+'" y="'+(padT-6)+'" font-size="11" fill="#888780">体重(kg)</text>'+
+  '</svg>';
+
+  // Delete list
+  if(data.length > 0){
+    let listHtml = '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:8px">'+
+      '<div style="font-size:12px;color:var(--text-2);margin-bottom:4px">历史记录</div>';
+    [...data].reverse().forEach(d=>{
+      listHtml += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #F5F3EE">'+
+        '<span style="font-size:12px;color:var(--text)">'+fmtDate(d.date)+'</span>'+
+        '<span style="display:flex;align-items:center;gap:8px">'+
+          '<span style="font-size:13px;font-weight:600;color:var(--text)">'+d.weight.toFixed(1)+' kg</span>'+
+          '<button class="btn-icon" style="width:24px;height:24px" onclick="deleteWeight('+d.id+')" title="删除">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-3);width:14px;height:14px"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-9 0v14a2 2 0 002 2h6a2 2 0 002-2V6"/></svg>'+
+          '</button>'+
+        '</span>'+
+      '</div>';
+    });
+    listHtml += '</div>';
+    container.innerHTML += listHtml;
+  }
+}
+
+/* ============ Fetal Movement ============ */
+function setFmToday(){
+  document.getElementById('fmDate').value = getTodayStr();
+  renderFetalMovement();
+}
+
+function renderFetalMovement(){
+  const dateEl = document.getElementById('fmDate');
+  if(!dateEl.value) dateEl.value = getTodayStr();
+  const date = dateEl.value;
+  const fm = appData.fetalMovements.find(f=>f.date===date) || {morning:0,afternoon:0,evening:0};
+
+  const grid = document.getElementById('fmGrid');
+  const periods = [['morning','早上','fmMorning'],['afternoon','下午','fmAfternoon'],['evening','晚上','fmEvening']];
+  grid.innerHTML = periods.map(([key,label,inputId])=>{
+    const val = fm[key] || 0;
+    const color = val >= 3 ? 'var(--success)' : (val > 0 ? 'var(--warning)' : 'var(--text-3)');
+    return '<div class="fm-card">'+
+      '<div class="fm-label">'+label+'</div>'+
+      '<div class="fm-value" style="color:'+color+'">'+val+'</div>'+
+      '<div class="fm-unit">次/小时</div>'+
+    '</div>';
+  }).join('');
+
+  document.getElementById('fmMorning').value = fm.morning || '';
+  document.getElementById('fmAfternoon').value = fm.afternoon || '';
+  document.getElementById('fmEvening').value = fm.evening || '';
+}
+
+function addFetalMovement(){
+  const date = document.getElementById('fmDate').value || getTodayStr();
+  const morning = parseInt(document.getElementById('fmMorning').value) || 0;
+  const afternoon = parseInt(document.getElementById('fmAfternoon').value) || 0;
+  const evening = parseInt(document.getElementById('fmEvening').value) || 0;
+  if(morning===0 && afternoon===0 && evening===0){ showToast('请输入至少一个时段的胎动数'); return; }
+  // Replace same date
+  appData.fetalMovements = appData.fetalMovements.filter(f=>f.date!==date);
+  appData.fetalMovements.push({id:Date.now(), date, morning, afternoon, evening});
+  saveData();
+  renderFetalMovement();
+  showToast('胎动已记录');
+}
+
+/* ============ Module 4: Tasks ============ */
+function addTask(){
+  const title = document.getElementById('taskTitle').value.trim();
+  const priority = document.getElementById('taskPriority').value;
+  const dueDate = document.getElementById('taskDueDate').value || getTodayStr();
+  if(!title){ showToast('请输入任务内容'); return; }
+  appData.tasks.push({id:Date.now(), title, priority, dueDate, completed:false});
+  saveData();
+  document.getElementById('taskTitle').value='';
+  document.getElementById('taskDueDate').value='';
+  renderTasks();
+  renderToday();
+  showToast('待办已添加');
+}
+
+function completeTask(id){
+  const t = appData.tasks.find(x=>x.id===id);
+  if(t){
+    t.completed = true;
+    saveData();
+    renderTasks();
+    renderToday();
+  }
+}
+
+function uncompleteTask(id){
+  const t = appData.tasks.find(x=>x.id===id);
+  if(t){
+    t.completed = false;
+    saveData();
+    renderTasks();
+    renderToday();
+  }
+}
+
+function deleteTask(id){
+  appData.tasks = appData.tasks.filter(t=>t.id!==id);
+  saveData();
+  renderTasks();
+  renderToday();
+}
+
+function renderTasks(){
+  const pendingEl = document.getElementById('taskListPending');
+  const doneEl = document.getElementById('taskListDone');
+  const pending = appData.tasks.filter(t=>!t.completed);
+  const done = appData.tasks.filter(t=>t.completed);
+
+  // Sort pending by priority then date
+  const pOrder = {P0:0,P1:1,P2:2};
+  pending.sort((a,b)=>{
+    if(pOrder[a.priority] !== pOrder[b.priority]) return pOrder[a.priority]-pOrder[b.priority];
+    return (a.dueDate||'').localeCompare(b.dueDate||'');
+  });
+  done.sort((a,b)=>(b.id||0)-(a.id||0));
+
+  if(pending.length===0){
+    pendingEl.innerHTML = '<div class="list-empty">暂无待办任务</div>';
+  } else {
+    pendingEl.innerHTML = pending.map(t=>{
+      const overdue = isOverdue(t.dueDate);
+      const today = isToday(t.dueDate);
+      const d = daysUntil(t.dueDate);
+      let meta = '';
+      if(overdue) meta = '已逾期'+(-d)+'天';
+      else if(today) meta = '今天截止';
+      else meta = d+'天后截止';
+      const badgeClass = overdue ? 'badge-overdue' : (t.priority==='P0'?'badge-p0':t.priority==='P1'?'badge-p1':'badge-p2');
+      return '<div class="list-item">'+
+        '<div class="task-checkbox" onclick="completeTask('+t.id+')">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>'+
+        '</div>'+
+        '<div class="list-item-left">'+
+          '<div class="list-item-title">'+t.title+'</div>'+
+          '<div class="list-item-meta">'+
+            '<span class="badge '+badgeClass+'">'+t.priority+'</span>'+
+            '<span style="color:'+(overdue?'var(--danger)':'var(--text-2)')+'">'+meta+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<button class="btn-icon" onclick="deleteTask('+t.id+')" title="删除">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-3)"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-9 0v14a2 2 0 002 2h6a2 2 0 002-2V6"/></svg>'+
+        '</button>'+
+      '</div>';
+    }).join('');
+  }
+
+  if(done.length===0){
+    doneEl.innerHTML = '<div class="list-empty">暂无已完成任务</div>';
+  } else {
+    doneEl.innerHTML = done.map(t=>{
+      return '<div class="list-item task-completed">'+
+        '<div class="task-checkbox checked" onclick="uncompleteTask('+t.id+')">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>'+
+        '</div>'+
+        '<div class="list-item-left">'+
+          '<div class="list-item-title">'+t.title+'</div>'+
+          '<div class="list-item-meta">'+
+            '<span class="badge badge-done">已完成</span>'+
+            '<span>'+fmtDate(t.dueDate)+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<button class="btn-icon" onclick="deleteTask('+t.id+')" title="删除">'+
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-3)"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m-9 0v14a2 2 0 002 2h6a2 2 0 002-2V6"/></svg>'+
+        '</button>'+
+      '</div>';
+    }).join('');
+  }
+}
+
+/* ============ Render all ============ */
+function renderAll(){
+  // Mode UI
+  document.getElementById('modePreconception').classList.toggle('active', appData.mode==='preconception');
+  document.getElementById('modePregnancy').classList.toggle('active', appData.mode==='pregnancy');
+  document.getElementById('tabNavPre').style.display = appData.mode==='preconception' ? '' : 'none';
+  document.getElementById('tabNavPreg').style.display = appData.mode==='pregnancy' ? '' : 'none';
+  renderDangan();
+  renderToday();
+  renderCheckups();
+  renderNutrition();
+  renderWeightModule();
+  renderFetalMovement();
+  renderTasks();
+  renderPeriods();
+  renderOvulationPredict();
+  renderBBTChart();
+  renderPreExams();
+  renderPreNutrition();
+  renderPreWeight();
+  renderLifestyle();
+
+  // Backup hint at 30+ items
+  const total = (appData.checkups?appData.checkups.length:0) + Object.keys(appData.nutrition).length +
+    (appData.weights?appData.weights.length:0) + (appData.fetalMovements?appData.fetalMovements.length:0) +
+    (appData.tasks?appData.tasks.length:0) + (appData.periods?appData.periods.length:0) +
+    (appData.bbt?appData.bbt.length:0) + (appData.preWeights?appData.preWeights.length:0);
+  if(total >= 30){
+    const existing = document.querySelector('.backup-hint');
+    if(!existing){
+      const hint = document.createElement('div');
+      hint.className = 'backup-hint';
+      hint.textContent = '数据已积累 '+total+' 条，建议导出备份（右上角下载图标）';
+      document.querySelector('.container').insertBefore(hint, document.querySelector('.today-section').nextSibling);
+    }
+  }
+}
+
+/* ============ Tutorial ============ */
+const TUT_PAGES = [
+  {
+    title:'欢迎使用',
+    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.5 2 6 4.5 6 8c0 2.5 1.5 4.5 3 6v2h6v-2c1.5-1.5 3-3.5 3-6 0-3.5-2.5-6-6-6z"/><path d="M9 20h6"/></svg>',
+    html:'<p>这是一个专属的备孕孕期管理工作台，根据你的阶段提供不同功能。</p>'+
+         '<p><strong>页面顶部有「备孕中 / 怀孕中」切换按钮，随时可切换。</strong></p>'+
+         '<p>· <strong>备孕模式</strong>：排卵预测、孕前检查、叶酸+BMI、生活方式打卡</p>'+
+         '<p>· <strong>怀孕模式</strong>：建档+产检、营养打卡、体重+胎动、待办提醒</p>'+
+         '<p>两个模式共享待办功能，切换不会丢失数据。</p>'
+  },
+  {
+    title:'四大功能模块',
+    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+    html:'<p><strong>1. 建档进度 + 产检计划</strong>（产检标签页）</p>'+
+         '<p>填写建档医院、勾选证件和检查项目；添加产检计划、标记完成状态。</p>'+
+         '<p><strong>2. 营养打卡</strong>（营养标签页）</p>'+
+         '<p>每日记录叶酸/铁/钙/DHA/碘的补充情况，自动统计近7天打卡率。</p>'+
+         '<p><strong>3. 体重 + 胎动</strong>（体重标签页）</p>'+
+         '<p>记录体重变化（自动画趋势图），28周后开始记录每日胎动次数。</p>'+
+         '<p><strong>4. 待办提醒</strong>（待办标签页）</p>'+
+         '<p>管理日常待办事项，支持 P0/P1/P2 优先级，逾期自动标红。</p>'
+  },
+  {
+    title:'「今天要处理」置顶',
+    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    html:'<p>页面最顶部有一个「今天要处理」区域，自动汇总：</p>'+
+         '<p>· 逾期未完成的产检/待办（红色标注）</p>'+
+         '<p>· 今天到期的事项</p>'+
+         '<p>· 未来7天内的产检/待办</p>'+
+         '<p>· 未完成的营养打卡</p>'+
+         '<p>· 建档提醒（未建档/已预约/逾期）</p>'+
+         '<p>每条都有一键处理按钮，不用翻找。</p>'
+  },
+  {
+    title:'数据保存与安全',
+    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
+    html:'<div class="tut-warn">你的数据保存在浏览器本地（localStorage），不上传服务器，隐私安全。</div>'+
+         '<div class="tut-danger"><strong>但以下情况会丢失数据：</strong><br>· 清理浏览器缓存/数据<br>· 卸载或重装浏览器<br>· 换手机/换电脑<br>· 使用无痕/隐身模式</div>'+
+         '<p><strong>请定期备份：</strong>点击右上角下载图标，导出 JSON 文件保存到手机相册或云盘。</p>'+
+         '<p><strong>恢复方法：</strong>点击右上角上传图标，选择之前导出的 JSON 文件即可恢复全部数据。</p>'
+  },
+  {
+    title:'手机端使用建议',
+    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+    html:'<p><strong>添加到桌面当 APP 用：</strong></p>'+
+         '<p>· iPhone：Safari 打开 → 底部分享按钮 → 「添加到主屏幕」</p>'+
+         '<p>· 安卓：浏览器打开 → 菜单 → 「添加到桌面」</p>'+
+         '<p>添加后桌面会出现图标，点开就是全屏 APP 体验。</p>'+
+         '<div class="tut-warn">注意：不同浏览器的 localStorage 不互通。如果用 Safari 添加到桌面，就一直用 Safari 打开，不要换 Chrome。</div>'
+  }
+];
+let tutCurrentPage = 0;
+function showTutorial(){
+  tutCurrentPage = 0;
+  renderTutPage();
+  document.getElementById('tutorialOverlay').classList.add('show');
+}
+function hideTutorial(){
+  document.getElementById('tutorialOverlay').classList.remove('show');
+  localStorage.setItem('wb_pregnancy_tutorial_done','1');
+}
+function renderTutPage(){
+  const p = TUT_PAGES[tutCurrentPage];
+  let html = '<div class="tutorial-section">'+
+    '<h3>'+p.icon+p.title+'</h3>'+
+    p.html+
+  '</div>';
+  document.getElementById('tutBody').innerHTML = html;
+  // Dots
+  const dots = TUT_PAGES.map((_,i)=>'<div class="tut-dot '+(i===tutCurrentPage?'active':'')+'"></div>').join('');
+  document.getElementById('tutDots').innerHTML = dots;
+  // Buttons
+  document.getElementById('tutPrevBtn').style.display = tutCurrentPage > 0 ? '' : 'none';
+  const nextBtn = document.getElementById('tutNextBtn');
+  if(tutCurrentPage === TUT_PAGES.length - 1){
+    nextBtn.textContent = '开始使用';
+  } else {
+    nextBtn.textContent = '下一步';
+  }
+}
+function tutNext(){
+  if(tutCurrentPage < TUT_PAGES.length - 1){
+    tutCurrentPage++;
+    renderTutPage();
+  } else {
+    hideTutorial();
+  }
+}
+function tutPrev(){
+  if(tutCurrentPage > 0){
+    tutCurrentPage--;
+    renderTutPage();
+  }
+}
+
+/* ============ Preconception Module: Periods ============ */
+function addPeriod(){
+  const start = document.getElementById('periodStart').value;
+  const days = parseInt(document.getElementById('periodDays').value) || 5;
+  const cycle = parseInt(document.getElementById('periodCycle').value) || 28;
+  if(!start){ showToast('请选择月经开始日期'); return; }
+  appData.periods.push({id:Date.now(), start, days, cycle, note:''});
+  appData.periods.sort((a,b)=>b.start.localeCompare(a.start));
+  saveData();
+  document.getElementById('periodDays').value = '';
+  document.getElementById('periodCycle').value = '';
+  renderPeriods();
+  renderOvulationPredict();
+  renderToday();
+  showToast('经期已记录');
+}
+function renderPeriods(){
+  const list = document.getElementById('periodList');
+  if(!list) return;
+  if(appData.periods.length === 0){
+    list.innerHTML = '<div class="list-empty">暂无经期记录</div>';
+    return;
+  }
+  list.innerHTML = appData.periods.map((p,idx)=>{
+    const end = dateOffsetFrom(p.start, p.days-1);
+    return '<div class="checkup-item">'+
+      '<div class="checkup-info">'+
+        '<div class="checkup-item-title">'+fmtDate(p.start)+' - '+fmtDate(end)+'</div>'+
+        '<div class="checkup-item-meta">持续'+p.days+'天 · 周期'+p.cycle+'天</div>'+
+      '</div>'+
+      '<button class="btn btn-sm btn-outline" style="color:var(--danger)" onclick="deletePeriod('+idx+')">删除</button>'+
+    '</div>';
+  }).join('');
+}
+function deletePeriod(idx){
+  appData.periods.splice(idx,1);
+  saveData();
+  renderPeriods();
+  renderOvulationPredict();
+  renderToday();
+}
+function dateOffsetFrom(base, days){
+  const d = new Date(base+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+/* ============ Preconception Module: Ovulation Prediction ============ */
+function renderOvulationPredict(){
+  const el = document.getElementById('ovulationPredict');
+  if(!el) return;
+  if(appData.periods.length === 0){
+    el.innerHTML = '<div class="list-empty">记录经期后自动预测排卵日和受孕窗口</div>';
+    return;
+  }
+  const last = appData.periods[0];
+  const nextPeriod = dateOffsetFrom(last.start, last.cycle);
+  const ovulationDay = dateOffsetFrom(last.start, last.cycle - 14);
+  const fertileStart = dateOffsetFrom(last.start, last.cycle - 19);
+  const fertileEnd = dateOffsetFrom(last.start, last.cycle - 10);
+  const dOv = daysUntil(ovulationDay);
+  let statusHtml = '';
+  if(dOv > 0){
+    statusHtml = '<div class="stats-card" style="background:var(--primary-light)"><div class="stats-label">排卵预计</div><div class="stats-value" style="color:var(--primary)">'+fmtDate(ovulationDay)+'</div><div class="stats-sub">还有 '+dOv+' 天</div></div>';
+  } else if(dOv === 0){
+    statusHtml = '<div class="stats-card" style="background:var(--success-light)"><div class="stats-label">排卵日</div><div class="stats-value" style="color:var(--success)">今天！</div><div class="stats-sub">受孕最佳时机</div></div>';
+  } else {
+    statusHtml = '<div class="stats-card"><div class="stats-label">排卵预计</div><div class="stats-value" style="color:var(--text-2)">'+fmtDate(ovulationDay)+'</div><div class="stats-sub">已过 '+(-dOv)+' 天</div></div>';
+  }
+  const dNext = daysUntil(nextPeriod);
+  let nextHtml = '';
+  if(dNext > 0){
+    nextHtml = '<div class="stats-card"><div class="stats-label">下次月经预计</div><div class="stats-value">'+fmtDate(nextPeriod)+'</div><div class="stats-sub">还有 '+dNext+' 天</div></div>';
+  } else if(dNext === 0){
+    nextHtml = '<div class="stats-card"><div class="stats-label">下次月经预计</div><div class="stats-value" style="color:var(--danger)">今天</div></div>';
+  } else {
+    nextHtml = '<div class="stats-card" style="background:var(--danger-light)"><div class="stats-label">月经推迟</div><div class="stats-value" style="color:var(--danger)">'+(-dNext)+'天</div><div class="stats-sub">建议验孕测试</div></div>';
+  }
+  el.innerHTML = '<div class="stats-row">'+statusHtml+nextHtml+'</div>'+
+    '<div style="margin-top:8px;padding:10px 12px;background:var(--primary-light);border-radius:var(--radius-sm);font-size:12px;color:var(--text-2)">受孕窗口：'+fmtDate(fertileStart)+' ~ '+fmtDate(fertileEnd)+'（排卵前5天到排卵后1天受孕概率最高）</div>';
+}
+
+/* ============ Preconception Module: BBT ============ */
+function addBBT(){
+  const date = document.getElementById('bbtDate').value;
+  const temp = parseFloat(document.getElementById('bbtTemp').value);
+  if(!date || !temp){ showToast('请填写日期和体温'); return; }
+  if(temp < 35 || temp > 42){ showToast('体温范围异常'); return; }
+  // Remove existing entry for same date
+  appData.bbt = appData.bbt.filter(b=>b.date !== date);
+  appData.bbt.push({id:Date.now(), date, temp});
+  appData.bbt.sort((a,b)=>a.date.localeCompare(b.date));
+  saveData();
+  document.getElementById('bbtTemp').value = '';
+  renderBBTChart();
+  renderToday();
+  showToast('体温已记录');
+}
+function renderBBTChart(){
+  const el = document.getElementById('bbtChartContainer');
+  if(!el) return;
+  const data = appData.bbt.slice(-30);
+  if(data.length < 2){
+    el.innerHTML = '<div class="list-empty">至少记录2天体温才能看到趋势图</div>';
+    return;
+  }
+  const temps = data.map(d=>d.temp);
+  const minT = Math.min(...temps) - 0.2;
+  const maxT = Math.max(...temps) + 0.2;
+  const W = Math.min(data.length * 24, 600);
+  const H = 160;
+  const padL = 36, padR = 12, padT = 12, padB = 28;
+  const cw = W - padL - padR, ch = H - padT - padB;
+  const xStep = data.length > 1 ? cw / (data.length-1) : 0;
+  const yScale = ch / (maxT - minT);
+  let path = '';
+  let dots = '';
+  data.forEach((d,i)=>{
+    const x = padL + i * xStep;
+    const y = padT + ch - (d.temp - minT) * yScale;
+    path += (i===0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+    dots += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.5" fill="var(--primary)"/>';
+  });
+  // Y axis labels
+  let yLabels = '';
+  for(let i=0; i<=3; i++){
+    const v = minT + (maxT - minT) * i / 3;
+    const y = padT + ch - (v - minT) * yScale;
+    yLabels += '<text x="4" y="'+(y+4).toFixed(1)+'" font-size="9" fill="var(--text-3)">'+v.toFixed(1)+'</text>'+
+      '<line x1="'+padL+'" y1="'+y.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y.toFixed(1)+'" stroke="var(--border)" stroke-width="0.5"/>';
+  }
+  // X axis labels (first, middle, last)
+  let xLabels = '';
+  [0, Math.floor(data.length/2), data.length-1].forEach(i=>{
+    if(i >= 0 && i < data.length){
+      const x = padL + i * xStep;
+      const p = data[i].date.split('-');
+      xLabels += '<text x="'+x.toFixed(1)+'" y="'+(H-8)+'" font-size="9" fill="var(--text-3)" text-anchor="middle">'+parseInt(p[1])+'/'+parseInt(p[2])+'</text>';
+    }
+  });
+  el.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+yLabels+'<path d="'+path+'" fill="none" stroke="var(--primary)" stroke-width="1.5"/>'+dots+xLabels+'</svg>';
+}
+
+/* ============ Preconception Module: Preconception Exams ============ */
+function renderPreExams(){
+  const fList = document.getElementById('femaleExamList');
+  const mList = document.getElementById('maleExamList');
+  if(!fList || !mList) return;
+  const pe = appData.preExams;
+  if(!pe.female) pe.female = {};
+  if(!pe.male) pe.male = {};
+  fList.innerHTML = FEMALE_EXAMS.map(name=>{
+    const checked = pe.female[name];
+    return '<div class="dangan-check-item '+(checked?'checked':'')+'" onclick="togglePreExam(\'female\',\''+name+'\')">'+
+      '<div class="ck-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>'+
+      '<span>'+name+'</span></div>';
+  }).join('');
+  mList.innerHTML = MALE_EXAMS.map(name=>{
+    const checked = pe.male[name];
+    return '<div class="dangan-check-item '+(checked?'checked':'')+'" onclick="togglePreExam(\'male\',\''+name+'\')">'+
+      '<div class="ck-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div>'+
+      '<span>'+name+'</span></div>';
+  }).join('');
+  const fDone = FEMALE_EXAMS.filter(n=>pe.female[n]).length;
+  const mDone = MALE_EXAMS.filter(n=>pe.male[n]).length;
+  document.getElementById('femaleExamBadge').textContent = fDone+'/'+FEMALE_EXAMS.length;
+  document.getElementById('maleExamBadge').textContent = mDone+'/'+MALE_EXAMS.length;
+  document.getElementById('examNote').value = pe.note || '';
+}
+function togglePreExam(type, name){
+  if(!appData.preExams[type]) appData.preExams[type] = {};
+  appData.preExams[type][name] = !appData.preExams[type][name];
+  saveData();
+  renderPreExams();
+  renderToday();
+}
+function saveExamNote(){
+  appData.preExams.note = document.getElementById('examNote').value.trim();
+  saveData();
+  showToast('备注已保存');
+}
+
+/* ============ Preconception Module: Pre-nutrition ============ */
+function renderPreNutrition(){
+  const grid = document.getElementById('preNutriGrid');
+  if(!grid) return;
+  const date = document.getElementById('preNutriDate').value || getTodayStr();
+  const rec = appData.nutrition[date] || {};
+  grid.innerHTML = PRE_NUTRI_ITEMS.map(([k,label])=>{
+    const checked = rec[k];
+    return '<div class="nutri-item '+(checked?'done':'')+'" onclick="togglePreNutri(\''+k+'\')">'+
+      '<div class="nutri-icon">'+(checked?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>')+'</div>'+
+      '<span>'+label+'</span></div>';
+  }).join('');
+}
+function togglePreNutri(key){
+  const date = document.getElementById('preNutriDate').value || getTodayStr();
+  if(!appData.nutrition[date]) appData.nutrition[date] = {};
+  appData.nutrition[date][key] = !appData.nutrition[date][key];
+  saveData();
+  renderPreNutrition();
+  renderToday();
+}
+
+/* ============ Preconception Module: Pre-weight/BMI ============ */
+function saveHeight(){
+  appData.height = parseFloat(document.getElementById('heightInput').value) || 0;
+  saveData();
+  renderPreWeight();
+}
+function addPreWeight(){
+  const date = document.getElementById('preWeightDate').value || getTodayStr();
+  const weight = parseFloat(document.getElementById('weightInput').value);
+  if(!weight){ showToast('请输入体重'); return; }
+  appData.preWeights = appData.preWeights.filter(w=>w.date !== date);
+  appData.preWeights.push({id:Date.now(), date, weight});
+  appData.preWeights.sort((a,b)=>a.date.localeCompare(b.date));
+  saveData();
+  document.getElementById('weightInput').value = '';
+  renderPreWeight();
+  renderToday();
+  showToast('体重已记录');
+}
+function renderPreWeight(){
+  const stats = document.getElementById('bmiStats');
+  const chart = document.getElementById('preWeightChart');
+  if(!stats || !chart) return;
+  const h = appData.height || 0;
+  document.getElementById('heightInput').value = h || '';
+  const weights = appData.preWeights || [];
+  if(weights.length === 0){
+    stats.innerHTML = '';
+    chart.innerHTML = '<div class="list-empty">暂无体重记录</div>';
+    return;
+  }
+  const last = weights[weights.length - 1];
+  let bmiHtml = '';
+  if(h > 0){
+    const bmi = last.weight / (h/100 * h/100);
+    let cat = '', catColor = '';
+    if(bmi < 18.5){ cat = '偏瘦'; catColor = 'var(--info)'; }
+    else if(bmi < 24){ cat = '正常'; catColor = 'var(--success)'; }
+    else if(bmi < 28){ cat = '偏胖'; catColor = 'var(--warning)'; }
+    else { cat = '肥胖'; catColor = 'var(--danger)'; }
+    bmiHtml = '<div class="stats-card" style="background:var(--primary-light)"><div class="stats-label">BMI</div><div class="stats-value" style="color:var(--primary)">'+bmi.toFixed(1)+'</div><div class="stats-sub" style="color:'+catColor+'">'+cat+'</div></div>';
+  }
+  stats.innerHTML = '<div class="stats-card"><div class="stats-label">当前体重</div><div class="stats-value">'+last.weight+'kg</div><div class="stats-sub">'+fmtDate(last.date)+'</div></div>'+bmiHtml;
+  // Mini chart
+  const data = weights.slice(-30);
+  if(data.length >= 2){
+    const vals = data.map(d=>d.weight);
+    const minV = Math.min(...vals) - 1;
+    const maxV = Math.max(...vals) + 1;
+    const W = 600, H = 120, padL = 36, padR = 12, padT = 12, padB = 24;
+    const cw = W-padL-padR, ch = H-padT-padB;
+    const xStep = cw / (data.length-1);
+    const yScale = ch / (maxV - minV);
+    let path = '', dots = '';
+    data.forEach((d,i)=>{
+      const x = padL + i*xStep;
+      const y = padT + ch - (d.weight - minV) * yScale;
+      path += (i===0?'M':'L') + x.toFixed(1) + ' ' + y.toFixed(1) + ' ';
+      dots += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.5" fill="var(--primary)"/>';
+    });
+    let yLabels = '';
+    for(let i=0;i<=2;i++){
+      const v = minV + (maxV-minV)*i/2;
+      const y = padT + ch - (v-minV)*yScale;
+      yLabels += '<text x="4" y="'+(y+4).toFixed(1)+'" font-size="9" fill="var(--text-3)">'+v.toFixed(1)+'</text>'+
+        '<line x1="'+padL+'" y1="'+y.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y.toFixed(1)+'" stroke="var(--border)" stroke-width="0.5"/>';
+    }
+    chart.innerHTML = '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto">'+yLabels+'<path d="'+path+'" fill="none" stroke="var(--primary)" stroke-width="1.5"/>'+dots+'</svg>';
+  } else {
+    chart.innerHTML = '<div class="list-empty">至少2条记录才能显示趋势图</div>';
+  }
+}
+
+/* ============ Preconception Module: Lifestyle ============ */
+function renderLifestyle(){
+  const grid = document.getElementById('lifestyleGrid');
+  if(!grid) return;
+  const date = document.getElementById('lifeDate').value || getTodayStr();
+  const rec = appData.lifestyle[date] || {};
+  grid.innerHTML = LIFESTYLE_ITEMS.map(([k,label])=>{
+    const checked = rec[k];
+    return '<div class="nutri-item '+(checked?'done':'')+'" onclick="toggleLifestyle(\''+k+'\')">'+
+      '<div class="nutri-icon">'+(checked?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>')+'</div>'+
+      '<span>'+label+'</span></div>';
+  }).join('');
+}
+function toggleLifestyle(key){
+  const date = document.getElementById('lifeDate').value || getTodayStr();
+  if(!appData.lifestyle[date]) appData.lifestyle[date] = {};
+  appData.lifestyle[date][key] = !appData.lifestyle[date][key];
+  saveData();
+  renderLifestyle();
+  renderToday();
+}
+
+/* ============ Init ============ */
+document.addEventListener('DOMContentLoaded', function(){
+  loadData();
+  // Set default dates
+  document.getElementById('cpDate').value = getTodayStr();
+  document.getElementById('nutriDate').value = getTodayStr();
+  document.getElementById('wtDate').value = getTodayStr();
+  document.getElementById('fmDate').value = getTodayStr();
+  document.getElementById('taskDueDate').value = getTodayStr();
+  document.getElementById('dgDate').value = getTodayStr();
+  document.getElementById('bbtDate').value = getTodayStr();
+  document.getElementById('preNutriDate').value = getTodayStr();
+  document.getElementById('preWeightDate').value = getTodayStr();
+  document.getElementById('lifeDate').value = getTodayStr();
+  // Apply mode
+  document.getElementById('modePreconception').classList.toggle('active', appData.mode==='preconception');
+  document.getElementById('modePregnancy').classList.toggle('active', appData.mode==='pregnancy');
+  document.getElementById('tabNavPre').style.display = appData.mode==='preconception' ? '' : 'none';
+  document.getElementById('tabNavPreg').style.display = appData.mode==='pregnancy' ? '' : 'none';
+  renderAll();
+  // Show correct initial tab
+  if(appData.mode === 'preconception'){
+    switchTab('ovulation');
+  } else {
+    switchTab('checkup');
+  }
+  // Show tutorial on first visit
+  if(!localStorage.getItem('wb_pregnancy_tutorial_done')){
+    showTutorial();
+  }
+});
+</script>
+</body>
+</html>
