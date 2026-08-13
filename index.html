@@ -200,22 +200,22 @@ label{font-size:12px;color:var(--text-2);display:block;margin-bottom:4px}
 .tutorial-overlay.show{opacity:1;visibility:visible}
 .tutorial-modal{background:var(--card);border-radius:var(--radius);max-width:480px;width:100%;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);transform:translateY(20px);transition:transform .3s}
 .tutorial-overlay.show .tutorial-modal{transform:translateY(0)}
-.tutorial-head{background:linear-gradient(135deg,var(--primary),#D4688A);color:#fff;padding:24px 20px;text-align:center;flex-shrink:0}
-.tutorial-head svg{width:40px;height:40px;margin-bottom:8px}
-.tutorial-head h2{font-size:18px;font-weight:700;margin-bottom:4px}
-.tutorial-head p{font-size:12px;opacity:.9}
-.tutorial-body{padding:20px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
-.tutorial-section{margin-bottom:16px}
+.tutorial-head{background:linear-gradient(135deg,var(--primary),#D4688A);color:#fff;padding:32px 24px;text-align:center;flex-shrink:0}
+.tutorial-head svg{width:48px;height:48px;margin-bottom:12px}
+.tutorial-head h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.tutorial-head p{font-size:13px;opacity:.9}
+.tutorial-body{padding:28px 24px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.tutorial-section{margin-bottom:24px}
 .tutorial-section:last-child{margin-bottom:0}
-.tutorial-section h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.tutorial-section h3 svg{width:16px;height:16px;color:var(--primary);flex-shrink:0}
-.tutorial-section p{font-size:13px;color:var(--text-2);line-height:1.7}
-.tutorial-section .tut-warn{background:var(--warning-light);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--warning);line-height:1.6;margin-top:6px}
-.tutorial-section .tut-danger{background:var(--danger-light);border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--danger);line-height:1.6;margin-top:6px}
-.tutorial-foot{padding:16px 20px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:8px}
+.tutorial-section h3{font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.tutorial-section h3 svg{width:18px;height:18px;color:var(--primary);flex-shrink:0}
+.tutorial-section p{font-size:14px;color:var(--text-2);line-height:1.8}
+.tutorial-section .tut-warn{background:var(--warning-light);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--warning);line-height:1.7;margin-top:10px}
+.tutorial-section .tut-danger{background:var(--danger-light);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--danger);line-height:1.7;margin-top:10px}
+.tutorial-foot{padding:18px 24px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:10px}
 .tutorial-foot .btn{flex:1}
-.tut-dots{display:flex;justify-content:center;gap:6px;padding-bottom:12px}
-.tut-dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .2s}
+.tut-dots{display:flex;justify-content:center;gap:8px;padding:12px 0 4px}
+.tut-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .2s}
 .tut-dot.active{background:var(--primary)}
 
 /* Dangan checklist */
@@ -764,6 +764,7 @@ label{font-size:12px;color:var(--text-2);display:block;margin-bottom:4px}
     <div class="tutorial-foot">
       <button class="btn btn-outline" id="tutPrevBtn" onclick="tutPrev()" style="display:none">上一步</button>
       <button class="btn btn-primary" id="tutNextBtn" onclick="tutNext()">下一步</button>
+      <button class="btn btn-outline" onclick="hideTutorial()" style="margin-left:auto">关闭</button>
     </div>
   </div>
 </div>
